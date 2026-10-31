@@ -6,6 +6,8 @@ function randomColor() {
     for (let i = 0; i < 6; i++) {
         const pos = Math.floor(Math.random() * characters.length);
         color += characters.substring(pos, pos + 1);
+     //   color += characters[pos];
+     //   color += characters.charAt(pos);
     }
     return color;
 }
