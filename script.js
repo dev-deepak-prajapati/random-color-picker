@@ -1,55 +1,56 @@
 const container = document.querySelector('.container');
 
 function randomColor() {
-    const characters = '0123456789ABCDEF';
-    let color = '';
-    for (let i = 0; i < 6; i++) {
-        const pos = Math.floor(Math.random() * characters.length);
-        color += characters.substring(pos, pos + 1);
-    }
-    return color;
+    return Math.floor(Math.random() * 16777215)
+        .toString(16)
+        .padStart(6, '0')
+        .toUpperCase();
+
+        // 256 *256 *256 = 16777216
+        // 0 se 16777215  : all possible color: 
+        // toString(16)   : num to hexadecimal 
+        // padStart(6,'0'): code digit 6 se less ho ,tb aage '0' lg jay
 }
 
-const colorList = [];
+const colorList = Array.from({ length: 100 }, randomColor);
 
-for (let i = 0; i < 1000; i++) {
-    colorList[i] = randomColor();
-}
-
+const fragment = document.createDocumentFragment();
 colorList.forEach((color) => {
     const divEle = document.createElement('div');
     divEle.classList.add('color-card');
     divEle.style.background = `#${color}`;
 
     divEle.innerHTML = `
-       <div class="showColorName">
-              <span class="colorCode">#${color}</span>
-              <button class="copy-btn">
-                     <i class="fa-regular fa-clone"></i>
-              </button>
-       </div>
-                    
+        <div class="showColorName">
+            <span class="colorCode">#${color}</span>
+            <button class="copy-btn" type="button">
+                <i class="fa-regular fa-clone"></i>
+            </button>
+        </div>
     `;
 
-    const copyBtn = divEle.querySelector('.copy-btn');
-    const colorCode = divEle.querySelector('.colorCode');
+    fragment.appendChild(divEle);
+});
+container.append(fragment);
 
-    copyBtn.addEventListener('click', () => {
-        const textToCopy = colorCode.textContent;
+container.addEventListener('click', (e) => {
+    const copyBtn = e.target.closest('.copy-btn');
+    if (!copyBtn) return;
+    
+    const colorCard = copyBtn.closest('.color-card');
+    const colorCode = colorCard.querySelector('.colorCode');
+    const textToCopy = colorCode.textContent;
 
-        try {
-            navigator.clipboard.writeText(textToCopy);
-
+    navigator.clipboard.writeText(textToCopy)
+        .then(() => {
             const icon = copyBtn.querySelector('i');
             icon.className = 'fa-solid fa-check';
 
             setTimeout(() => {
                 icon.className = 'fa-regular fa-clone';
             }, 1500);
-        } catch (err) {
-            console.error('Failed to copy text: ', err);
-        }
-    });
-
-    container.append(divEle);
+        })
+        .catch((err) => {
+            console.error('Failed tto copy text: ', err);
+        });
 });
